@@ -11,7 +11,6 @@ require('dotenv').config();
 const Item = require('./models/Item');
 const app = express();
 
-// ✅ FIX 3 — replace app.use(cors()) with this
 app.use(cors({ origin: 'http://127.0.0.1:5500' }));
 
 app.use(express.json());
@@ -24,16 +23,20 @@ const storage = multer.diskStorage({
     }
 });
 
-// ✅ FIX 1 — replace the old `const upload = multer({ storage })` with this
 const upload = multer({
     storage: storage,
-    limits: { fileSize: 5 * 1024 * 1024 },
+    limits: { fileSize: 5 * 1024 * 1024 }, 
     fileFilter: (req, file, cb) => {
-        const allowed = /jpeg|jpg|png|gif|webp/;
-        const ext = allowed.test(path.extname(file.originalname).toLowerCase());
-        const mime = allowed.test(file.mimetype);
-        if (ext && mime) return cb(null, true);
-        cb(new Error('Only image files are allowed'));
+        const filetypes = /jpeg|jpg|png|gif|webp/;
+        
+        const extname = filetypes.test(path.extname(file.originalname).toLowerCase());
+        const mimetype = filetypes.test(file.mimetype);
+
+        if (mimetype && extname) {
+            return cb(null, true); 
+        } else {
+            cb(new Error('Error: Only Images (JPG, PNG, etc.) are allowed!')); // ❌ Reject
+        }
     }
 });
 
@@ -45,7 +48,6 @@ app.post('/api/items', upload.single('itemImage'), async (req, res) => {
     try {
         const newItem = new Item({
             ...req.body,
-            // ✅ FIX 2 — replace hardcoded localhost with env variable
             imageUrl: req.file
                 ? `${process.env.BASE_URL}/uploads/${req.file.filename}`
                 : "https://placehold.co/400x200?text=MITS+Item"
