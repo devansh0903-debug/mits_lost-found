@@ -1,4 +1,4 @@
-<<<<<<< HEAD
+// <<<<<<< HEAD
 document.addEventListener('DOMContentLoaded', () => {
 
     // ── Selectors ──────────────────────────────────────────────
@@ -144,7 +144,6 @@ document.addEventListener('DOMContentLoaded', () => {
     // ── Init ───────────────────────────────────────────────────
     loadItems();
 });
-=======
 document.addEventListener('DOMContentLoaded', () => {
 
     // ── Selectors ──────────────────────────────────────────────
@@ -290,4 +289,4 @@ document.addEventListener('DOMContentLoaded', () => {
     // ── Init ───────────────────────────────────────────────────
     loadItems();
 });
->>>>>>> 262e65181a8413894136d444d764d5a56fb8ee9a
+// 262e65181a8413894136d444d764d5a56fb8ee9a

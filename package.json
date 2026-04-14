@@ -1,35 +1,23 @@
 {
   "name": "mits_lost_found",
   "version": "1.0.0",
-<<<<<<< HEAD
-  "description": "",
-=======
-  "description": "",  
->>>>>>> 262e65181a8413894136d444d764d5a56fb8ee9a
-  "main": "index.js",
+  "description": "MITS Lost and Found System",
+  "main": "server.js",
   "scripts": {
+    "start": "node server.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
-  "author": "",
+  "author": "Devansh Mishra",
   "license": "ISC",
   "type": "commonjs",
   "dependencies": {
-    "bcryptjs": "^3.0.3",
-<<<<<<< HEAD
-    "cloudinary": "^1.41.3",
-=======
->>>>>>> 262e65181a8413894136d444d764d5a56fb8ee9a
-    "cors": "^2.8.6",
-    "dotenv": "^17.3.1",
-    "express": "^5.2.1",
-    "jsonwebtoken": "^9.0.3",
-    "mongoose": "^9.3.1",
-<<<<<<< HEAD
-    "multer": "^2.1.1",
+    "cloudinary": "^2.5.1",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "mongoose": "^8.9.5",
+    "multer": "^1.4.5-lts.1",
     "multer-storage-cloudinary": "^4.0.0"
-=======
-    "multer": "^2.1.1"
->>>>>>> 262e65181a8413894136d444d764d5a56fb8ee9a
   }
 }
