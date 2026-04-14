@@ -8,7 +8,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const imagePreview    = document.getElementById('image-preview');
     const uploadPlaceholder = document.getElementById('upload-placeholder');
 
-    const API_URL = 'http://localhost:5000/api/items';
+    const API_URL = 'https://mits-lost-found.onrender.com/api/items';
 
     // ── 1. Scroll Reveal ───────────────────────────────────────
     // Immediately make all .reveal elements visible on load too,
