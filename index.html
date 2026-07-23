@@ -81,13 +81,28 @@
                 <textarea id="itemDescription" placeholder="Brief description..." required></textarea>
 
                 <div class="file-upload-container">
+                    <div id="upload-mode-toggle">
+                        <button type="button" id="btn-upload-mode" class="mode-btn active">Upload Photo</button>
+                        <button type="button" id="btn-camera-mode" class="mode-btn">Use Camera</button>
+                    </div>
+
                     <input type="file" id="itemImage" accept="image/*" hidden>
-                    <label for="itemImage" class="upload-box">
+                    <label for="itemImage" class="upload-box" id="upload-label">
                         <div class="upload-content" id="upload-placeholder">
                             <span>📸 Click to Upload Image</span>
                         </div>
                         <img id="image-preview" src="#" class="hidden">
                     </label>
+
+                    <div id="camera-ui" style="display: none;">
+                        <video id="camera-preview" autoplay playsinline></video>
+                        <canvas id="camera-canvas" style="display: none;"></canvas>
+                        <img id="captured-preview" style="display: none;" alt="Captured photo">
+                        <div id="camera-controls">
+                            <button type="button" id="btn-capture">📸 Capture</button>
+                            <button type="button" id="btn-retake" style="display: none;">🔄 Retake</button>
+                        </div>
+                    </div>
                 </div>
                 <button type="submit" class="submit-btn">Post to Feed</button>
             </form>

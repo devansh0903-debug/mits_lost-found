@@ -459,3 +459,71 @@ body {
     .stats-container { flex-direction: column; }
     .navbar { padding: 1rem 5%; }
 }
+
+/* CAMERA MODE */
+#upload-mode-toggle {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 12px;
+    grid-column: 1 / -1;
+}
+
+.mode-btn {
+    flex: 1;
+    padding: 10px;
+    border: 1px solid var(--primary);
+    border-radius: 12px;
+    background: rgba(52, 152, 219, 0.05);
+    color: var(--dark);
+    cursor: pointer;
+    font-weight: 600;
+    transition: 0.3s;
+}
+
+.mode-btn.active {
+    background: var(--primary);
+    color: white;
+}
+
+#camera-ui {
+    grid-column: 1 / -1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+}
+
+#camera-preview, #captured-preview {
+    width: 100%;
+    max-width: 100%;
+    border-radius: 15px;
+    background: #000;
+}
+
+#camera-controls {
+    display: flex;
+    gap: 10px;
+}
+
+#camera-controls button {
+    padding: 10px 20px;
+    border-radius: 10px;
+    border: none;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+#btn-capture {
+    background: var(--primary);
+    color: white;
+}
+
+#btn-capture:hover {
+    background: #2980b9;
+}
+
+#btn-retake {
+    background: var(--red);
+    color: white;
+}

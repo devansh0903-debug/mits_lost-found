@@ -7,6 +7,18 @@ document.addEventListener('DOMContentLoaded', () => {
     const imagePreview    = document.getElementById('image-preview');
     const uploadPlaceholder = document.getElementById('upload-placeholder');
 
+    const uploadModeBtn    = document.getElementById('btn-upload-mode');
+    const cameraModeBtn    = document.getElementById('btn-camera-mode');
+    const uploadLabel      = document.getElementById('upload-label');
+    const cameraUI         = document.getElementById('camera-ui');
+    const cameraVideo      = document.getElementById('camera-preview');
+    const cameraCanvas     = document.getElementById('camera-canvas');
+    const capturedPreview  = document.getElementById('captured-preview');
+    const captureBtn       = document.getElementById('btn-capture');
+    const retakeBtn        = document.getElementById('btn-retake');
+    let cameraStream = null;
+    let capturedImageBlob = null;
+
     const API_URL = 'https://mits-lost-found.onrender.com/api/items';
 
     // ── 1. Scroll Reveal ───────────────────────────────────────
@@ -74,7 +86,70 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
-    // ── 4. Post New Item ───────────────────────────────────────
+    // ── 4. Camera Mode ─────────────────────────────────────────
+    const startCamera = async () => {
+        try {
+            cameraStream = await navigator.mediaDevices.getUserMedia({
+                video: { facingMode: 'environment' }
+            });
+            cameraVideo.srcObject = cameraStream;
+            cameraVideo.style.display = 'block';
+            capturedPreview.style.display = 'none';
+            captureBtn.style.display = 'inline-block';
+            retakeBtn.style.display = 'none';
+        } catch (err) {
+            alert('Camera access denied or unavailable: ' + err.message);
+            uploadModeBtn.click();
+        }
+    };
+
+    const stopCamera = () => {
+        if (cameraStream) {
+            cameraStream.getTracks().forEach(track => track.stop());
+            cameraStream = null;
+        }
+    };
+
+    uploadModeBtn.addEventListener('click', () => {
+        uploadModeBtn.classList.add('active');
+        cameraModeBtn.classList.remove('active');
+        uploadLabel.style.display = 'flex';
+        cameraUI.style.display = 'none';
+        capturedImageBlob = null;
+        stopCamera();
+    });
+
+    cameraModeBtn.addEventListener('click', async () => {
+        cameraModeBtn.classList.add('active');
+        uploadModeBtn.classList.remove('active');
+        uploadLabel.style.display = 'none';
+        cameraUI.style.display = 'flex';
+        await startCamera();
+    });
+
+    captureBtn.addEventListener('click', () => {
+        cameraCanvas.width = cameraVideo.videoWidth;
+        cameraCanvas.height = cameraVideo.videoHeight;
+        cameraCanvas.getContext('2d').drawImage(cameraVideo, 0, 0);
+
+        cameraCanvas.toBlob((blob) => {
+            capturedImageBlob = blob;
+            capturedPreview.src = URL.createObjectURL(blob);
+            capturedPreview.style.display = 'block';
+            cameraVideo.style.display = 'none';
+            captureBtn.style.display = 'none';
+            retakeBtn.style.display = 'inline-block';
+            stopCamera();
+        }, 'image/jpeg', 0.9);
+    });
+
+    retakeBtn.addEventListener('click', async () => {
+        capturedImageBlob = null;
+        capturedPreview.style.display = 'none';
+        await startCamera();
+    });
+
+    // ── 5. Post New Item ───────────────────────────────────────
     itemForm.addEventListener('submit', async (e) => {
         e.preventDefault();
         const formData = new FormData();
@@ -87,10 +162,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
         try {
             const res = await fetch(API_URL, { method: 'POST', body: formData });
-            if (res.ok) {
+            if (res.ok)  {
                 itemForm.reset();
                 imagePreview.classList.add('hidden');
                 uploadPlaceholder.classList.remove('hidden');
+                capturedImageBlob = null;
+                capturedPreview.style.display = 'none';
+                uploadModeBtn.click();
                 loadItems();
             }
         } catch (err) {
@@ -99,7 +177,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // ── 5. Image Preview ───────────────────────────────────────
+    // ── 6. Image Preview ───────────────────────────────────────
     itemImageInput.addEventListener('change', function () {
         const file = this.files[0];
         if (!file) return;
@@ -112,7 +190,7 @@ document.addEventListener('DOMContentLoaded', () => {
         reader.readAsDataURL(file);
     });
 
-    // ── 6. Resolve Item Action ─────────────────────────────────
+    // ── 7. Resolve Item Action ─────────────────────────────────
     itemsGrid.addEventListener('click', async (e) => {
         if (!e.target.classList.contains('resolve-btn')) return;
         
@@ -130,3 +208,4 @@ document.addEventListener('DOMContentLoaded', () => {
     // ── Init ───────────────────────────────────────────────────
     loadItems();
 });
+
