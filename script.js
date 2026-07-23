@@ -151,31 +151,41 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // ── 5. Post New Item ───────────────────────────────────────
     itemForm.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const formData = new FormData();
-        formData.append('itemName',    document.getElementById('itemName').value);
-        formData.append('itemType',    document.getElementById('itemType').value);
-        formData.append('contactInfo', document.getElementById('contactInfo').value);
-        formData.append('location',    document.getElementById('itemLocation').value);
-        formData.append('description', document.getElementById('itemDescription').value);
-        if (itemImageInput.files[0]) formData.append('itemImage', itemImageInput.files[0]);
+    e.preventDefault();
+    const formData = new FormData();
+    formData.append('itemName',    document.getElementById('itemName').value);
+    formData.append('itemType',    document.getElementById('itemType').value);
+    formData.append('contactInfo', document.getElementById('contactInfo').value);
+    formData.append('location',    document.getElementById('itemLocation').value);
+    formData.append('description', document.getElementById('itemDescription').value);
 
-        try {
-            const res = await fetch(API_URL, { method: 'POST', body: formData });
-            if (res.ok)  {
-                itemForm.reset();
-                imagePreview.classList.add('hidden');
-                uploadPlaceholder.classList.remove('hidden');
-                capturedImageBlob = null;
-                capturedPreview.style.display = 'none';
-                uploadModeBtn.click();
-                loadItems();
-            }
-        } catch (err) {
-            console.error("Post error:", err);
-            alert("Could not post item. Is the server running?");
+    // Prefer the camera capture if one exists, otherwise fall back to file upload
+    if (capturedImageBlob) {
+        formData.append('itemImage', capturedImageBlob, 'capture.jpg');
+    } else if (itemImageInput.files[0]) {
+        formData.append('itemImage', itemImageInput.files[0]);
+    }
+
+    try {
+        const res = await fetch(API_URL, { method: 'POST', body: formData });
+        if (res.ok)  {
+            itemForm.reset();
+            imagePreview.classList.add('hidden');
+            uploadPlaceholder.classList.remove('hidden');
+            capturedImageBlob = null;
+            capturedPreview.style.display = 'none';
+            uploadModeBtn.click();
+            loadItems();
+        } else {
+            const errData = await res.json().catch(() => ({}));
+            console.error("Server rejected item:", errData);
+            alert("Server error: " + (errData.error || res.status));
         }
-    });
+    } catch (err) {
+        console.error("Post error:", err);
+        alert("Could not post item. Is the server running?");
+    }
+});
 
     // ── 6. Image Preview ───────────────────────────────────────
     itemImageInput.addEventListener('change', function () {
