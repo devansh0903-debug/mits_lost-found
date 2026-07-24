@@ -67,7 +67,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 const card = document.createElement('div');
                 card.className = `item-card ${item.itemType}`;
                 card.innerHTML = `
-                    <img src="${getSmartThumbnail(item.imageUrl)}" class="item-image" onerror="this.src='https://placehold.co/400x200?text=MITS+Item'">
+                    <div class="item-image-wrap" style="background-image:url('${item.imageUrl}')">
+                        <img src="${item.imageUrl}" class="item-image" onerror="this.src='https://placehold.co/400x200?text=MITS+Item'">
+                    </div>
                     <h4>${item.itemName}</h4>
                     <p>📍 ${item.location || 'Location not specified'}</p>
                     <p class="card-desc">${item.description || 'No description provided.'}</p>

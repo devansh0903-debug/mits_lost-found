@@ -406,13 +406,34 @@ body {
 .item-card.lost { border-top-color: var(--red); }
 .item-card.found { border-top-color: var(--green); }
 
-.item-image { 
-   .item-image { 
-    width: 100%; 
-    height: 220px; 
-    object-fit: contain;
+.item-image-wrap {
+    position: relative;
+    width: 100%;
+    height: 220px;
     border-radius: 12px;
+    overflow: hidden;
+    background-size: cover;
+    background-position: center;
 }
+
+.item-image-wrap::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: inherit;
+    background-size: cover;
+    background-position: center;
+    filter: blur(20px) brightness(0.7);
+    transform: scale(1.15);
+    z-index: 1;
+}
+
+.item-image {
+    position: relative;
+    z-index: 2;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
 }
 
 .card-desc {
