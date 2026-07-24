@@ -23,7 +23,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const getSmartThumbnail = (url) => {
         if (!url || !url.includes('/upload/')) return url;
-        return url.replace('/upload/', '/upload/w_400,h_220,c_fill,g_auto/');
+        return url.replace('/upload/', '/upload/w_400,h_220,c_pad,b_auto/');
     };
     // ── 1. Scroll Reveal ───────────────────────────────────────
     const revealEls = document.querySelectorAll('.reveal');

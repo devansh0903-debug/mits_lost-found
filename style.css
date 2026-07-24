@@ -407,10 +407,12 @@ body {
 .item-card.found { border-top-color: var(--green); }
 
 .item-image { 
+   .item-image { 
     width: 100%; 
-    height: 180px; 
-    object-fit: cover; 
-    border-radius: 12px; 
+    height: 220px; 
+    object-fit: contain;
+    border-radius: 12px;
+}
 }
 
 .card-desc {
