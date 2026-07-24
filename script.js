@@ -21,6 +21,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const API_URL = 'https://mits-lost-found.onrender.com/api/items';
 
+    const getSmartThumbnail = (url) => {
+        if (!url || !url.includes('/upload/')) return url;
+        return url.replace('/upload/', '/upload/w_400,h_220,c_fill,g_auto/');
+    };
     // ── 1. Scroll Reveal ───────────────────────────────────────
     const revealEls = document.querySelectorAll('.reveal');
     const revealObserver = new IntersectionObserver((entries) => {
@@ -60,7 +64,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 const card = document.createElement('div');
                 card.className = `item-card ${item.itemType}`;
                 card.innerHTML = `
-                    <img src="${item.imageUrl}" class="item-image" onerror="this.src='https://placehold.co/400x200?text=MITS+Item'">
+                    <img src="${getSmartThumbnail(item.imageUrl)}" class="item-image" onerror="this.src='https://placehold.co/400x200?text=MITS+Item'">
                     <h4>${item.itemName}</h4>
                     <p>📍 ${item.location || 'Location not specified'}</p>
                     <p class="card-desc">${item.description || 'No description provided.'}</p>
