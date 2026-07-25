@@ -853,6 +853,14 @@ body {
   z-index: 1500;
   box-shadow: 0 20px 40px rgba(0,0,0,0.3);
   transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  display: flex;
+  flex-direction: column;
+}
+
+.reports-panel .modal-close {
+  position: static;
+  align-self: flex-end;
+  margin-bottom: 0.4rem;
 }
 
 .reports-panel.hidden {
@@ -917,7 +925,7 @@ body {
     max-width: none;
     margin: 0;
     flex-direction: column;
-    background: var(--navbar-bg);
+    background: var(--panel-solid-bg);
     backdrop-filter: blur(20px);
     border-radius: 0 0 20px 20px;
     padding: 10px 6% 18px;
@@ -933,6 +941,9 @@ body {
     padding: 12px 10px;
     border-bottom: 1px solid var(--panel-border);
     width: 100%;
+  }
+  .nav-links li:last-child a {
+    border-bottom: none;
   }
 
   .nav-toggle { display: flex; }
