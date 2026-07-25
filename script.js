@@ -38,39 +38,53 @@ document.addEventListener('DOMContentLoaded', () => {
     let allItems = []; // holds the last loaded items so modals can reuse them
 
     const API_URL = 'https://mits-lost-found.onrender.com/api/items';
+
     const FALLBACK_IMAGE = `data:image/svg+xml,${encodeURIComponent(`
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 680 520">
-            <circle cx="340" cy="270" r="215" fill="#ffffff"/>
-            <circle cx="340" cy="270" r="215" fill="none" stroke="#f0ded0" stroke-width="3" stroke-dasharray="14 10"/>
-            <circle cx="340" cy="270" r="192" fill="#f6e6cf"/>
-            <path id="arcpath" d="M 220 190 A 130 130 0 0 1 460 190" fill="none"/>
-            <text font-family="Arial, sans-serif" font-size="42" font-weight="700" fill="#e0453c" stroke="#ffffff" stroke-width="6" paint-order="stroke" text-anchor="middle">
-                <textPath href="#arcpath" startOffset="50%">OOPS!</textPath>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 680 380">
+            <rect x="0" y="0" width="680" height="380" rx="24" fill="#f6e6cf"/>
+            <rect x="12" y="12" width="656" height="356" rx="16" fill="none" stroke="#e3cba3" stroke-width="3" stroke-dasharray="14 10"/>
+            <path id="arcpath2" d="M 230 130 Q 340 55 450 130" fill="none"/>
+            <text font-family="Arial, sans-serif" font-size="40" font-weight="700" fill="#e0453c" stroke="#ffffff" stroke-width="6" paint-order="stroke" text-anchor="middle">
+                <textPath href="#arcpath2" startOffset="50%">OOPS!</textPath>
             </text>
             <g fill="#e0453c">
-                <path d="M198 205 l6 14 l14 6 l-14 6 l-6 14 l-6 -14 l-14 -6 l14 -6 z"/>
-                <path d="M482 205 l6 14 l14 6 l-14 6 l-6 14 l-6 -14 l-14 -6 l14 -6 z"/>
+                <path d="M195 118 l6 14 l14 6 l-14 6 l-6 14 l-6 -14 l-14 -6 l14 -6 z"/>
+                <path d="M485 118 l6 14 l14 6 l-14 6 l-6 14 l-6 -14 l-14 -6 l14 -6 z"/>
             </g>
-            <rect x="425" y="258" width="26" height="18" rx="4" fill="#c96f45"/>
-            <rect x="310" y="232" width="64" height="26" rx="8" fill="#c96f45"/>
-            <rect x="240" y="252" width="200" height="128" rx="20" fill="#e8875f"/>
-            <path d="M240 272 a20 20 0 0 1 20 -20 h160 a20 20 0 0 1 20 20 v10 h-200 z" fill="#c96f45"/>
-            <circle cx="340" cy="330" r="48" fill="#8a4a2f"/>
-            <circle cx="340" cy="330" r="37" fill="#f6e6cf"/>
-            <circle cx="340" cy="330" r="42" fill="#e0453c" opacity="0.92"/>
-            <circle cx="340" cy="330" r="42" fill="none" stroke="#ffffff" stroke-width="4"/>
+            <rect x="425" y="171" width="26" height="18" rx="4" fill="#c96f45"/>
+            <rect x="310" y="145" width="64" height="26" rx="8" fill="#c96f45"/>
+            <rect x="240" y="165" width="200" height="128" rx="20" fill="#e8875f"/>
+            <path d="M240 185 a20 20 0 0 1 20 -20 h160 a20 20 0 0 1 20 20 v10 h-200 z" fill="#c96f45"/>
+            <circle cx="340" cy="243" r="48" fill="#8a4a2f"/>
+            <circle cx="340" cy="243" r="37" fill="#f6e6cf"/>
+            <circle cx="340" cy="243" r="42" fill="#e0453c" opacity="0.92"/>
+            <circle cx="340" cy="243" r="42" fill="none" stroke="#ffffff" stroke-width="4"/>
             <g stroke="#ffffff" stroke-width="6" stroke-linecap="round">
-                <line x1="322" y1="312" x2="358" y2="348"/>
-                <line x1="358" y1="312" x2="322" y2="348"/>
+                <line x1="322" y1="225" x2="358" y2="261"/>
+                <line x1="358" y1="225" x2="322" y2="261"/>
             </g>
-            <text x="340" y="430" font-family="Arial, sans-serif" font-size="30" font-weight="800" fill="#2c2c2c" text-anchor="middle">NO IMAGE</text>
-            <text x="340" y="466" font-family="Arial, sans-serif" font-size="30" font-weight="800" fill="#2c2c2c" text-anchor="middle">UPLOADED</text>
+            <text x="340" y="324" font-family="Arial, sans-serif" font-size="28" font-weight="800" fill="#2c2c2c" text-anchor="middle">NO IMAGE</text>
+            <text x="340" y="354" font-family="Arial, sans-serif" font-size="28" font-weight="800" fill="#2c2c2c" text-anchor="middle">UPLOADED</text>
         </svg>
     `)}`;
+
     const getOptimizedUrl = (url, width) => {
         if (!url || !url.includes('/upload/')) return url;
         return url.replace('/upload/', `/upload/w_${width},c_limit,q_auto,f_auto/`);
     };
+
+    const renderImageBlock = (imageUrl) => {
+        const hasImage = imageUrl && !imageUrl.includes('placehold.co');
+        if (hasImage) {
+            return `<div class="item-image-wrap" style="background-image:url('${getOptimizedUrl(imageUrl, 30)}')">
+                        <img src="${getOptimizedUrl(imageUrl, 500)}" class="item-image" loading="lazy" onerror="this.onerror=null;this.src='${FALLBACK_IMAGE}'">
+                    </div>`;
+        }
+        return `<div class="item-image-wrap no-image">
+                    <img src="${FALLBACK_IMAGE}" class="item-image" loading="lazy">
+                </div>`;
+    };
+
     // ── 1. Scroll Reveal ───────────────────────────────────────
     const revealEls = document.querySelectorAll('.reveal');
     const revealObserver = new IntersectionObserver((entries) => {
@@ -111,9 +125,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 const card = document.createElement('div');
                 card.className = `item-card ${item.itemType}`;
                 card.innerHTML = `
-                    <div class="item-image-wrap" style="background-image:url('${getOptimizedUrl(item.imageUrl, 30)}')">
-                        <img src="${item.imageUrl ? getOptimizedUrl(item.imageUrl, 500) : FALLBACK_IMAGE}" class="item-image" loading="lazy" onerror="this.onerror=null;this.src='${FALLBACK_IMAGE}'">
-                    </div>
+                    ${renderImageBlock(item.imageUrl)}
                     <h4>${item.itemName}</h4>
                     <p>📍 ${item.location || 'Location not specified'}</p>
                     <p class="card-desc">${item.description || 'No description provided.'}</p>
@@ -161,9 +173,7 @@ document.addEventListener('DOMContentLoaded', () => {
             ? `<p style="color:var(--ink-muted);grid-column:1/-1;padding:20px 0;">No ${type} reports yet.</p>`
             : filtered.map(item => `
                 <div class="item-card ${item.itemType}">
-                    <div class="item-image-wrap" style="background-image:url('${getOptimizedUrl(item.imageUrl, 30)}')">
-                        <img src="${getOptimizedUrl(item.imageUrl, 500)}" class="item-image" loading="lazy" onerror="this.src='https://placehold.co/400x200?text=MITS+Item'">
-                    </div>
+                    ${renderImageBlock(item.imageUrl)}
                     <h4>${item.itemName}</h4>
                     <p>📍 ${item.location || 'Location not specified'}</p>
                     <p class="card-desc">${item.description || 'No description provided.'}</p>
@@ -196,11 +206,13 @@ document.addEventListener('DOMContentLoaded', () => {
             reportsFab.classList.remove('active');
         }
     });
+
     document.getElementById('dropdown-my-reports').addEventListener('click', () => {
         profileDropdown.classList.add('hidden');
         reportsPanel.classList.remove('hidden');
         reportsFab.classList.add('active');
     });
+
     navToggle.addEventListener('click', () => {
         navLinks.classList.toggle('open');
     });
@@ -250,7 +262,7 @@ document.addEventListener('DOMContentLoaded', () => {
         await startCamera();
     });
 
-     captureBtn.addEventListener('click', () => {
+    captureBtn.addEventListener('click', () => {
         const maxDim = 1280;
         let vw = cameraVideo.videoWidth;
         let vh = cameraVideo.videoHeight;

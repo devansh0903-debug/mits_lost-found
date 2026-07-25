@@ -626,6 +626,15 @@ body {
     z-index: 1;
 } */
 
+.item-image-wrap.no-image {
+    background: #f6e6cf;
+}
+
+.item-image-wrap.no-image .item-image {
+    object-fit: cover;
+    padding: 0;
+}
+
 .item-image {
     position: relative;
     z-index: 2;
