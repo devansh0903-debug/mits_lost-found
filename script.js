@@ -28,6 +28,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const modalGrid        = document.getElementById('modal-grid');
     const modalClose       = document.getElementById('modal-close');
 
+    const navToggle = document.getElementById('nav-toggle');
+    const navLinks  = document.getElementById('nav-links');
+
     const reportsFab   = document.getElementById('reports-fab');
     const reportsPanel = document.getElementById('reports-panel');
     const panelClose   = document.getElementById('panel-close');
@@ -166,6 +169,13 @@ document.addEventListener('DOMContentLoaded', () => {
         profileDropdown.classList.add('hidden');
         reportsPanel.classList.remove('hidden');
         reportsFab.classList.add('active');
+    });
+    navToggle.addEventListener('click', () => {
+        navLinks.classList.toggle('open');
+    });
+
+    navLinks.querySelectorAll('a').forEach(link => {
+        link.addEventListener('click', () => navLinks.classList.remove('open'));
     });
 
     // ── 4. Camera Mode ─────────────────────────────────────────

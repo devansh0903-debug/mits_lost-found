@@ -29,18 +29,23 @@
 </div>
     <nav class="navbar">
         <div class="logo">MITS <span>Lost & Found</span></div>
-        <ul class="nav-links">
+
+        <ul class="nav-links" id="nav-links">
             <li><a href="#about" id="nav-about">About</a></li>
             <li><a href="#report-section">Report</a></li>
             <li><a href="#feed-section">Feed</a></li>
         </ul>
-        <div class="profile-menu">
-            <button id="profile-btn" class="profile-btn">👤</button>
-            <div id="profile-dropdown" class="profile-dropdown hidden">
-                <p class="profile-status">Guest</p>
-                <button id="dropdown-my-reports" class="dropdown-item">📋 My Reports</button>
-                <button id="btn-login" class="dropdown-item">🔐 Login</button>
-                <button id="btn-logout" class="dropdown-item hidden">🚪 Logout</button>
+
+        <div class="navbar-right">
+            <button id="nav-toggle" class="nav-toggle" aria-label="Menu">☰</button>
+            <div class="profile-menu">
+                <button id="profile-btn" class="profile-btn">👤</button>
+                <div id="profile-dropdown" class="profile-dropdown hidden">
+                    <p class="profile-status">Guest</p>
+                    <button id="dropdown-my-reports" class="dropdown-item">📋 My Reports</button>
+                    <button id="btn-login" class="dropdown-item">🔐 Login</button>
+                    <button id="btn-logout" class="dropdown-item hidden">🚪 Logout</button>
+                </div>
             </div>
         </div>
     </nav>
