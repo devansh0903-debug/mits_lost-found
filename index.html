@@ -1,157 +1,175 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MITS | 3D Lost & Found</title>
-    <link rel="stylesheet" href="style.css">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Poppins:wght@300;400;500&display=swap" rel="stylesheet">
-
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MITS | Lost & Found</title>
+  <link rel="stylesheet" href="style.css">
+  <script>
+    document.documentElement.setAttribute('data-theme', localStorage.getItem('theme') || 'dark');
+  </script>
 </head>
 <body>
-   <div id="splash">
-  <div id="splash-glow"></div>
-  <div id="splash-card">
-    <h1 id="splash-title">
-      <span>M</span><span>I</span><span>T</span><span>S</span>&nbsp;
-      <span>L</span><span>o</span><span>s</span><span>t</span>&nbsp;
-      <span>&amp;</span>&nbsp;
-      <span>F</span><span>o</span><span>u</span><span>n</span><span>d</span>
-    </h1>
-    <p id="splash-welcome">Welcome, MITSians!</p>
-    <p id="splash-sub">Reconnecting people with what they've lost.</p>
+
+  <!-- SPLASH SCREEN -->
+  <div id="splash">
+    <div id="splash-glow"></div>
+    <div id="splash-card">
+      <h1 id="splash-title">MITS Lost &amp; Found</h1>
+      <p id="splash-welcome">Welcome, MITSians!</p>
+      <p id="splash-sub">Reconnecting people with what they've lost.</p>
+    </div>
   </div>
-</div>
 
-<div id="main-content">
-  <!-- your existing page content -->
-</div>
+  <div id="main-content">
+    <!-- NAVIGATION BAR -->
     <nav class="navbar">
-        <div class="logo">MITS <span>Lost & Found</span></div>
+      <div class="logo">MITS <span>Lost &amp; Found</span></div>
 
-        <ul class="nav-links" id="nav-links">
-            <li><a href="#about" id="nav-about">About</a></li>
-            <li><a href="#report-section">Report</a></li>
-            <li><a href="#feed-section">Feed</a></li>
-        </ul>
+      <ul class="nav-links" id="nav-links">
+        <li><a href="#about" id="nav-about">About</a></li>
+        <li><a href="#report-section">Report</a></li>
+        <li><a href="#feed-section">Feed</a></li>
+      </ul>
 
-        <div class="navbar-right">
-            <button id="nav-toggle" class="nav-toggle" aria-label="Menu">☰</button>
-            <div class="profile-menu">
-                <button id="profile-btn" class="profile-btn">👤</button>
-                <div id="profile-dropdown" class="profile-dropdown hidden">
-                    <p class="profile-status">Guest</p>
-                    <button id="dropdown-my-reports" class="dropdown-item">📋 My Reports</button>
-                    <button id="btn-login" class="dropdown-item">🔐 Login</button>
-                    <button id="btn-logout" class="dropdown-item hidden">🚪 Logout</button>
-                </div>
-            </div>
+      <div class="navbar-right">
+        <button id="nav-toggle" class="nav-toggle" aria-label="Menu">☰</button>
+        <button id="theme-toggle" class="theme-toggle" aria-label="Toggle theme">🌙</button>
+        <div class="profile-menu">
+          <button id="profile-btn" class="profile-btn">👤</button>
+          <div id="profile-dropdown" class="profile-dropdown hidden">
+            <p class="profile-status">Guest</p>
+            <button id="btn-login" class="dropdown-item">🔐 Login</button>
+            <button id="btn-logout" class="dropdown-item hidden">🚪 Logout</button>
+          </div>
         </div>
+      </div>
     </nav>
 
+    <!-- HERO / ABOUT SECTION -->
     <section class="about-section" id="about">
-        <div class="about-content">
-            <h1 class="floating">Helping MITSians Find What's Lost</h1>
-            <p>Report missing items or return belongings to the MITS community.</p>
-            
-          <div id="fun-guide" class="hidden-guide">
-    <div class="about-steps">
-        <div class="step"><h3>1. Report</h3><p>Post your item details with a photo.</p></div>
-        <div class="step"><h3>2. Connect</h3><p>Chat with the owner or finder to meet up.</p></div>
-        <div class="step"><h3>3. Found?</h3><p>Once you get your item back, click <b>Resolved</b>.</p></div>
-        <div class="step"><h3>4. Success</h3><p>Removing found items helps keep the feed clean!</p></div>
-    </div>
-</div>
+      <div class="about-content">
+        <h1 class="floating">Helping MITSians Find What's Lost</h1>
+        <p>Report missing items or return belongings to the MITS community.</p>
+
+        <div id="fun-guide" class="hidden-guide">
+          <div class="about-steps">
+            <div class="step">
+              <h3>1. Report</h3>
+              <p>Post your item details with a photo.</p>
+            </div>
+            <div class="step">
+              <h3>2. Connect</h3>
+              <p>Chat with the owner or finder to meet up.</p>
+            </div>
+            <div class="step">
+              <h3>3. Found?</h3>
+              <p>Once retrieved, mark the item as <b>Resolved</b>.</p>
+            </div>
+            <div class="step">
+              <h3>4. Success</h3>
+              <p>Resolved posts keep the live feed active and clean.</p>
+            </div>
+          </div>
         </div>
+      </div>
     </section>
 
+    <!-- MAIN CONTAINER -->
     <main class="container">
-        <section class="stats-container reveal">
-            <div class="stat-card">
-                <h2 id="total-lost">0</h2>
-                <p>Items Lost</p>
-            </div>
-            <div class="stat-card">
-                <h2 id="total-found">0</h2>
-                <p>Items Found</p>
-            </div>
-            <div class="stat-card success-glow">
-                <h2 id="total-recovered">0</h2>
-                <p>MITS Successes</p>
-            </div>
-        </section>
 
-        <section id="report-section" class="report-section reveal">
-            <h2 style="padding: 10px;">Report an Item</h2>
-            <form id="item-form">
-                <input type="text" id="itemName" placeholder="Item Name (e.g., Wallet)" required>
-                <select id="itemType">
-                    <option value="found">I Found This</option>
-                    <option value="lost">I Lost This</option>
-                </select>
-                <input type="text" id="contactInfo" placeholder="Contact Info" required>
-                <input type="text" id="itemLocation" placeholder="Where? (e.g., SH-1)" required>
-                <textarea id="itemDescription" placeholder="Brief description..." required></textarea>
-
-                <div class="file-upload-container">
-                    <div id="upload-mode-toggle">
-                        <button type="button" id="btn-upload-mode" class="mode-btn active">Upload Photo</button>
-                        <button type="button" id="btn-camera-mode" class="mode-btn">Use Camera</button>
-                    </div>
-
-                    <input type="file" id="itemImage" accept="image/*" hidden>
-                    <label for="itemImage" class="upload-box" id="upload-label">
-                        <div class="upload-content" id="upload-placeholder">
-                            <span>📸 Click to Upload Image</span>
-                        </div>
-                        <img id="image-preview" src="#" class="hidden">
-                    </label>
-
-                    <div id="camera-ui" style="display: none;">
-                        <video id="camera-preview" autoplay playsinline></video>
-                        <canvas id="camera-canvas" style="display: none;"></canvas>
-                        <img id="captured-preview" style="display: none;" alt="Captured photo">
-                        <div id="camera-controls">
-                            <button type="button" id="btn-capture">📸 Capture</button>
-                            <button type="button" id="btn-retake" style="display: none;">🔄 Retake</button>
-                        </div>
-                    </div>
-                </div>
-                <button type="submit" class="submit-btn">Post to Feed</button>
-            </form>
-        </section>
-
-        <section id="feed-section" class="feed-section reveal">
-            <h3>Recent Items</h3>
-            <div class="items-grid" id="itemsGrid"></div>
-        </section>
-
-        
-    </main>
-
-    <div id="report-modal" class="modal-overlay hidden">
-        <div class="modal-box">
-            <button id="modal-close" class="modal-close">✕</button>
-            <h3 id="modal-title">Lost Reports</h3>
-            <div id="modal-grid" class="items-grid modal-grid"></div>
+      <!-- STATS COUNTERS -->
+      <section class="stats-container reveal">
+        <div class="stat-card">
+          <h2 id="total-lost">0</h2>
+          <p>Items Lost</p>
         </div>
+        <div class="stat-card">
+          <h2 id="total-found">0</h2>
+          <p>Items Found</p>
+        </div>
+        <div class="stat-card success-glow">
+          <h2 id="total-recovered">0</h2>
+          <p>MITS Successes</p>
+        </div>
+      </section>
+
+      <!-- REPORT FORM SECTION -->
+      <section id="report-section" class="report-section reveal">
+        <h2>Report an Item</h2>
+        <form id="item-form">
+          <input type="text" id="itemName" placeholder="Item Name (e.g., Wallet)" required>
+          <select id="itemType">
+            <option value="found">I Found This</option>
+            <option value="lost">I Lost This</option>
+          </select>
+          <input type="text" id="contactInfo" placeholder="Contact Info" required>
+          <input type="text" id="itemLocation" placeholder="Where? (e.g., SH-1)" required>
+          <textarea id="itemDescription" placeholder="Brief description..." required></textarea>
+
+          <div class="file-upload-container">
+            <div id="upload-mode-toggle">
+              <button type="button" id="btn-upload-mode" class="mode-btn active">Upload Photo</button>
+              <button type="button" id="btn-camera-mode" class="mode-btn">Use Camera</button>
+            </div>
+
+            <input type="file" id="itemImage" accept="image/*" hidden>
+            <label for="itemImage" class="upload-box" id="upload-label">
+              <div class="upload-content" id="upload-placeholder">
+                <span>📸 Click to Upload Image</span>
+              </div>
+              <img id="image-preview" src="#" class="hidden" alt="Preview">
+            </label>
+
+            <div id="camera-ui" style="display: none;">
+              <video id="camera-preview" autoplay playsinline></video>
+              <canvas id="camera-canvas" style="display: none;"></canvas>
+              <img id="captured-preview" style="display: none;" alt="Captured photo">
+              <div id="camera-controls">
+                <button type="button" id="btn-capture">📸 Capture</button>
+                <button type="button" id="btn-retake" style="display: none;">🔄 Retake</button>
+              </div>
+            </div>
+          </div>
+
+          <button type="submit" class="submit-btn" id="submit-btn">
+            <span id="submit-btn-text">Post to Feed</span>
+          </button>
+        </form>
+      </section>
+
+      <!-- FEED SECTION -->
+      <section id="feed-section" class="feed-section reveal">
+        <h3>Recent Items</h3>
+        <div class="items-grid" id="itemsGrid"></div>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- MODAL DIALOG -->
+  <div id="report-modal" class="modal-overlay hidden">
+    <div class="modal-box" id="modal-box">
+      <button id="modal-close" class="modal-close">✕</button>
+      <h3 id="modal-title">My Reports</h3>
+      <div id="modal-grid" class="items-grid modal-grid"></div>
     </div>
+  </div>
 
-    <div id="reports-fab" class="reports-fab">📋</div>
+  <!-- FLOATING ACTION BUTTON & PANEL -->
+  <div id="reports-fab" class="reports-fab">📋</div>
 
-    <div id="reports-panel" class="reports-panel hidden">
-        <button id="panel-close" class="panel-close">✕</button>
-        <!-- <h4>My Reports</h4> -->
-        <p class="panel-sub">View everything reported so far</p>
-        <button id="btn-my-lost" class="report-type-btn lost-btn">
-            <span class="btn-icon">🔴</span> Lost Reports
-        </button>
-        <button id="btn-my-found" class="report-type-btn found-btn">
-            <span class="btn-icon">🟢</span> Found Reports
-        </button>
-    </div>
+  <div id="reports-panel" class="reports-panel hidden">
+    <button id="panel-close" class="modal-close">✕</button>
+    <p class="panel-sub">View everything reported so far</p>
+    <button id="btn-my-lost" class="report-type-btn lost-btn">
+      🔴 Lost Reports
+    </button>
+    <button id="btn-my-found" class="report-type-btn found-btn">
+      🟢 Found Reports
+    </button>
+  </div>
 
-    <script src="script.js"></script>
+  <script src="script.js"></script>
 </body>
 </html>

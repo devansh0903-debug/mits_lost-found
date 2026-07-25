@@ -1,10 +1,10 @@
 document.addEventListener('DOMContentLoaded', () => {
 
     // ── Selectors ──────────────────────────────────────────────
-    const itemForm        = document.getElementById('item-form');
-    const itemsGrid       = document.getElementById('itemsGrid');
-    const itemImageInput  = document.getElementById('itemImage');
-    const imagePreview    = document.getElementById('image-preview');
+    const itemForm          = document.getElementById('item-form');
+    const itemsGrid         = document.getElementById('itemsGrid');
+    const itemImageInput    = document.getElementById('itemImage');
+    const imagePreview      = document.getElementById('image-preview');
     const uploadPlaceholder = document.getElementById('upload-placeholder');
 
     const uploadModeBtn    = document.getElementById('btn-upload-mode');
@@ -24,6 +24,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const btnMyLost        = document.getElementById('btn-my-lost');
     const btnMyFound       = document.getElementById('btn-my-found');
     const reportModal      = document.getElementById('report-modal');
+    const modalBox         = document.getElementById('modal-box');
     const modalTitle       = document.getElementById('modal-title');
     const modalGrid        = document.getElementById('modal-grid');
     const modalClose       = document.getElementById('modal-close');
@@ -31,57 +32,61 @@ document.addEventListener('DOMContentLoaded', () => {
     const navToggle = document.getElementById('nav-toggle');
     const navLinks  = document.getElementById('nav-links');
 
+    const themeToggle = document.getElementById('theme-toggle');
+    const rootEl = document.documentElement;
+
     const reportsFab   = document.getElementById('reports-fab');
     const reportsPanel = document.getElementById('reports-panel');
     const panelClose   = document.getElementById('panel-close');
 
-    let allItems = []; // holds the last loaded items so modals can reuse them
+    const aboutSection = document.getElementById('about');
+    const funGuide      = document.getElementById('fun-guide');
+
+    const submitBtn     = document.getElementById('submit-btn');
+    const submitBtnText = document.getElementById('submit-btn-text');
+
+    let allItems = [];
+    let isSubmitting = false; // prevents duplicate-post spam from repeated taps
 
     const API_URL = 'https://mits-lost-found.onrender.com/api/items';
 
     const FALLBACK_IMAGE = `data:image/svg+xml,${encodeURIComponent(`
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 680 380">
-            <rect x="0" y="0" width="680" height="380" rx="24" fill="#f6e6cf"/>
-            <rect x="12" y="12" width="656" height="356" rx="16" fill="none" stroke="#e3cba3" stroke-width="3" stroke-dasharray="14 10"/>
-            <path id="arcpath2" d="M 230 130 Q 340 55 450 130" fill="none"/>
-            <text font-family="Arial, sans-serif" font-size="40" font-weight="700" fill="#e0453c" stroke="#ffffff" stroke-width="6" paint-order="stroke" text-anchor="middle">
-                <textPath href="#arcpath2" startOffset="50%">OOPS!</textPath>
-            </text>
-            <g fill="#e0453c">
-                <path d="M195 118 l6 14 l14 6 l-14 6 l-6 14 l-6 -14 l-14 -6 l14 -6 z"/>
-                <path d="M485 118 l6 14 l14 6 l-14 6 l-6 14 l-6 -14 l-14 -6 l14 -6 z"/>
-            </g>
-            <rect x="425" y="171" width="26" height="18" rx="4" fill="#c96f45"/>
-            <rect x="310" y="145" width="64" height="26" rx="8" fill="#c96f45"/>
-            <rect x="240" y="165" width="200" height="128" rx="20" fill="#e8875f"/>
-            <path d="M240 185 a20 20 0 0 1 20 -20 h160 a20 20 0 0 1 20 20 v10 h-200 z" fill="#c96f45"/>
-            <circle cx="340" cy="243" r="48" fill="#8a4a2f"/>
-            <circle cx="340" cy="243" r="37" fill="#f6e6cf"/>
-            <circle cx="340" cy="243" r="42" fill="#e0453c" opacity="0.92"/>
-            <circle cx="340" cy="243" r="42" fill="none" stroke="#ffffff" stroke-width="4"/>
-            <g stroke="#ffffff" stroke-width="6" stroke-linecap="round">
-                <line x1="322" y1="225" x2="358" y2="261"/>
-                <line x1="358" y1="225" x2="322" y2="261"/>
-            </g>
-            <text x="340" y="324" font-family="Arial, sans-serif" font-size="28" font-weight="800" fill="#2c2c2c" text-anchor="middle">NO IMAGE</text>
-            <text x="340" y="354" font-family="Arial, sans-serif" font-size="28" font-weight="800" fill="#2c2c2c" text-anchor="middle">UPLOADED</text>
+            <rect width="100%" height="100%" rx="20" fill="#1e293b"/>
+            <circle cx="340" cy="180" r="90" fill="#293548"/>
+            <text x="340" y="188" font-family="sans-serif" font-size="26" font-weight="700" fill="#64748b" text-anchor="middle">NO IMAGE</text>
         </svg>
     `)}`;
 
+    // ── Theme Toggle ─────────────────────────────────────────────
+    const applyThemeIcon = () => {
+        themeToggle.textContent = rootEl.getAttribute('data-theme') === 'light' ? '☀️' : '🌙';
+    };
+    applyThemeIcon();
+
+    themeToggle.addEventListener('click', () => {
+        const next = rootEl.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+        rootEl.setAttribute('data-theme', next);
+        localStorage.setItem('theme', next);
+        applyThemeIcon();
+    });
+
+    // ── Image helpers ────────────────────────────────────────────
+    // Lower quality + smaller size = much faster load/upload, especially on mobile
     const getOptimizedUrl = (url, width) => {
         if (!url || !url.includes('/upload/')) return url;
-        return url.replace('/upload/', `/upload/w_${width},c_limit,q_auto,f_auto/`);
+        return url.replace('/upload/', `/upload/w_${width},c_limit,q_auto:low,f_auto/`);
     };
 
     const renderImageBlock = (imageUrl) => {
         const hasImage = imageUrl && !imageUrl.includes('placehold.co');
         if (hasImage) {
-            return `<div class="item-image-wrap" style="background-image:url('${getOptimizedUrl(imageUrl, 30)}')">
-                        <img src="${getOptimizedUrl(imageUrl, 500)}" class="item-image" loading="lazy" onerror="this.onerror=null;this.src='${FALLBACK_IMAGE}'">
+            return `<div class="item-image-wrap" style="background-image:url('${getOptimizedUrl(imageUrl, 24)}')">
+                        <img src="${getOptimizedUrl(imageUrl, 480)}" class="item-image" loading="lazy" alt="Item photo" onerror="this.onerror=null;this.src='${FALLBACK_IMAGE}'">
                     </div>`;
         }
         return `<div class="item-image-wrap no-image">
-                    <img src="${FALLBACK_IMAGE}" class="item-image" loading="lazy">
+                    <img src="${FALLBACK_IMAGE}" class="item-image" loading="lazy" alt="No image uploaded">
                 </div>`;
     };
 
@@ -97,11 +102,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
     revealEls.forEach(el => revealObserver.observe(el));
 
-    // ── 2. About guide toggle ──────────────────────────────────
+    // ── 2. About guide toggle (click to open, mouse-leave to close) ──
     const navAbout = document.getElementById('nav-about');
     if (navAbout) {
-        navAbout.addEventListener('click', () => {
-            document.getElementById('fun-guide').classList.toggle('show');
+        navAbout.addEventListener('click', (e) => {
+            e.preventDefault();
+            funGuide.classList.toggle('show');
+        });
+    }
+
+    if (aboutSection) {
+        aboutSection.addEventListener('mouseleave', () => {
+            funGuide.classList.remove('show');
         });
     }
 
@@ -111,42 +123,40 @@ document.addEventListener('DOMContentLoaded', () => {
             const response = await fetch(API_URL);
             const data = await response.json();
 
-            allItems = data.items; // store for My Reports modals
+            allItems = data.items || [];
             itemsGrid.innerHTML = '';
 
-            if (data.items.length === 0) {
+            if (allItems.length === 0) {
                 itemsGrid.innerHTML = `
-                    <p style="color:var(--ink-muted);font-size:.9rem;grid-column:1/-1;padding:20px 0;">
+                    <p style="color:var(--text-muted);font-size:.9rem;grid-column:1/-1;padding:20px 0;text-align:center;">
                         No items yet — be the first to post!
                     </p>`;
             }
 
-            data.items.forEach(item => {
+            allItems.forEach(item => {
                 const card = document.createElement('div');
                 card.className = `item-card ${item.itemType}`;
+
                 card.innerHTML = `
                     ${renderImageBlock(item.imageUrl)}
                     <h4>${item.itemName}</h4>
                     <p>📍 ${item.location || 'Location not specified'}</p>
                     <p class="card-desc">${item.description || 'No description provided.'}</p>
-                    <p style="font-size:.8rem;color:var(--blue);">📞 ${item.contactInfo}</p>
-                    <button class="resolve-btn" data-id="${item._id}">✅ Resolved</button>
+                    <p style="font-size:.85rem;color:var(--cyan-accent);">📞 ${item.contactInfo}</p>
+                    <button class="resolve-btn" data-id="${item._id}">✅ Mark Resolved</button>
                 `;
                 itemsGrid.appendChild(card);
             });
 
-            document.getElementById('total-lost').innerText =
-                data.items.filter(i => i.itemType === 'lost').length;
-            document.getElementById('total-found').innerText =
-                data.items.filter(i => i.itemType === 'found').length;
-            document.getElementById('total-recovered').innerText =
-                data.resolvedCount;
+            document.getElementById('total-lost').innerText = allItems.filter(i => i.itemType === 'lost').length;
+            document.getElementById('total-found').innerText = allItems.filter(i => i.itemType === 'found').length;
+            document.getElementById('total-recovered').innerText = data.resolvedCount || 0;
 
         } catch (err) {
             console.error("Load error:", err);
             itemsGrid.innerHTML = `
-                <p style="color:#EF4444;font-size:.9rem;grid-column:1/-1;padding:20px 0;">
-                    ⚠️ Could not connect to server. Make sure the backend is running.
+                <p style="color:var(--lost-color);font-size:.9rem;grid-column:1/-1;padding:20px 0;text-align:center;">
+                    ⚠️ Could not connect to server.
                 </p>`;
         }
     };
@@ -164,13 +174,11 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     const renderModalItems = (type) => {
-        // NOTE: currently shows all items of this type. Once login is wired in,
-        // filter allItems here by the logged-in user's email/id before rendering.
         const filtered = allItems.filter(i => i.itemType === type);
         modalTitle.textContent = type === 'lost' ? '🔴 My Lost Reports' : '🟢 My Found Reports';
 
         modalGrid.innerHTML = filtered.length === 0
-            ? `<p style="color:var(--ink-muted);grid-column:1/-1;padding:20px 0;">No ${type} reports yet.</p>`
+            ? `<p style="color:var(--text-muted);grid-column:1/-1;padding:20px 0;text-align:center;">No ${type} reports found.</p>`
             : filtered.map(item => `
                 <div class="item-card ${item.itemType}">
                     ${renderImageBlock(item.imageUrl)}
@@ -186,33 +194,39 @@ document.addEventListener('DOMContentLoaded', () => {
     btnMyLost.addEventListener('click', () => renderModalItems('lost'));
     btnMyFound.addEventListener('click', () => renderModalItems('found'));
     modalClose.addEventListener('click', () => reportModal.classList.add('hidden'));
+
     reportModal.addEventListener('click', (e) => {
         if (e.target === reportModal) reportModal.classList.add('hidden');
     });
 
+    // close the modal automatically when the cursor leaves the popup box
+    if (modalBox) {
+        modalBox.addEventListener('mouseleave', () => {
+            reportModal.classList.add('hidden');
+        });
+    }
+
+    // ── 3.6 Floating Reports Panel ──────────────────────────────
     reportsFab.addEventListener('click', () => {
         reportsPanel.classList.toggle('hidden');
-        reportsFab.classList.toggle('active');
     });
 
-    panelClose.addEventListener('click', () => {
+    panelClose?.addEventListener('click', () => {
         reportsPanel.classList.add('hidden');
-        reportsFab.classList.remove('active');
     });
 
     document.addEventListener('click', (e) => {
         if (!reportsPanel.contains(e.target) && e.target !== reportsFab) {
             reportsPanel.classList.add('hidden');
-            reportsFab.classList.remove('active');
         }
     });
 
-    document.getElementById('dropdown-my-reports').addEventListener('click', () => {
-        profileDropdown.classList.add('hidden');
-        reportsPanel.classList.remove('hidden');
-        reportsFab.classList.add('active');
+    // close the panel automatically when the cursor leaves it
+    reportsPanel.addEventListener('mouseleave', () => {
+        reportsPanel.classList.add('hidden');
     });
 
+    // ── 3.7 Mobile Nav Toggle ────────────────────────────────────
     navToggle.addEventListener('click', () => {
         navLinks.classList.toggle('open');
     });
@@ -233,7 +247,7 @@ document.addEventListener('DOMContentLoaded', () => {
             captureBtn.style.display = 'inline-block';
             retakeBtn.style.display = 'none';
         } catch (err) {
-            alert('Camera access denied or unavailable: ' + err.message);
+            alert('Camera access unavailable: ' + err.message);
             uploadModeBtn.click();
         }
     };
@@ -262,8 +276,10 @@ document.addEventListener('DOMContentLoaded', () => {
         await startCamera();
     });
 
+    // Captures at a smaller max dimension + lower JPEG quality so uploads
+    // and page renders stay fast on mobile connections.
     captureBtn.addEventListener('click', () => {
-        const maxDim = 1280;
+        const maxDim = 1000;
         let vw = cameraVideo.videoWidth;
         let vh = cameraVideo.videoHeight;
         const scale = Math.min(1, maxDim / Math.max(vw, vh));
@@ -279,7 +295,7 @@ document.addEventListener('DOMContentLoaded', () => {
             captureBtn.style.display = 'none';
             retakeBtn.style.display = 'inline-block';
             stopCamera();
-        }, 'image/jpeg', 0.9);
+        }, 'image/jpeg', 0.7);
     });
 
     retakeBtn.addEventListener('click', async () => {
@@ -291,6 +307,13 @@ document.addEventListener('DOMContentLoaded', () => {
     // ── 5. Post New Item ───────────────────────────────────────
     itemForm.addEventListener('submit', async (e) => {
         e.preventDefault();
+
+        // Block duplicate submissions from repeated taps while a post is in flight
+        if (isSubmitting) return;
+        isSubmitting = true;
+        submitBtn.disabled = true;
+        submitBtnText.innerHTML = `<span class="spinner"></span> Posting...`;
+
         const formData = new FormData();
         formData.append('itemName',    document.getElementById('itemName').value);
         formData.append('itemType',    document.getElementById('itemType').value);
@@ -298,7 +321,6 @@ document.addEventListener('DOMContentLoaded', () => {
         formData.append('location',    document.getElementById('itemLocation').value);
         formData.append('description', document.getElementById('itemDescription').value);
 
-        // Prefer the camera capture if one exists, otherwise fall back to file upload
         if (capturedImageBlob) {
             formData.append('itemImage', capturedImageBlob, 'capture.jpg');
         } else if (itemImageInput.files[0]) {
@@ -314,15 +336,17 @@ document.addEventListener('DOMContentLoaded', () => {
                 capturedImageBlob = null;
                 capturedPreview.style.display = 'none';
                 uploadModeBtn.click();
-                loadItems();
+                await loadItems();
             } else {
-                const errData = await res.json().catch(() => ({}));
-                console.error("Server rejected item:", errData);
-                alert("Server error: " + (errData.error || res.status));
+                alert("Could not post item. Check fields and try again.");
             }
         } catch (err) {
             console.error("Post error:", err);
-            alert("Could not post item. Is the server running?");
+            alert("Could not connect to server. If this is your first visit today, the server may still be waking up — please wait a few seconds and try again.");
+        } finally {
+            isSubmitting = false;
+            submitBtn.disabled = false;
+            submitBtnText.textContent = 'Post to Feed';
         }
     });
 
@@ -344,7 +368,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!e.target.classList.contains('resolve-btn')) return;
 
         const id = e.target.dataset.id;
-        if (confirm("Mark this item as found / returned?")) {
+        if (confirm("Mark this item as resolved?")) {
             try {
                 const res = await fetch(`${API_URL}/resolve/${id}`, { method: 'PUT' });
                 if (res.ok) loadItems();
@@ -354,6 +378,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // ── Init ───────────────────────────────────────────────────
+    // Init
     loadItems();
 });
