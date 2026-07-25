@@ -597,6 +597,8 @@ body {
     display: flex;
     flex-direction: column;
     gap: 10px;
+    content-visibility: auto;
+    contain-intrinsic-size: 420px;
 }
 
 .item-card.lost { border-top-color: var(--red); }
@@ -612,7 +614,7 @@ body {
     background-position: center;
 }
 
-.item-image-wrap::before {
+/* .item-image-wrap::before {
     content: "";
     position: absolute;
     inset: 0;
@@ -622,7 +624,7 @@ body {
     filter: blur(20px) brightness(0.7);
     transform: scale(1.15);
     z-index: 1;
-}
+} */
 
 .item-image {
     position: relative;
@@ -704,7 +706,7 @@ body {
     position: absolute;
     top: 18px;
     right: 18px;
-    background: rgba(0,0,0,0.06);
+    /* background: rgba(0,0,0,0.06); */
     border: none;
     width: 34px;
     height: 34px;
