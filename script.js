@@ -19,15 +19,23 @@ document.addEventListener('DOMContentLoaded', () => {
     let cameraStream = null;
     let capturedImageBlob = null;
 
+    const profileBtn      = document.getElementById('profile-btn');
+    const profileDropdown = document.getElementById('profile-dropdown');
+    const btnMyLost        = document.getElementById('btn-my-lost');
+    const btnMyFound       = document.getElementById('btn-my-found');
+    const reportModal      = document.getElementById('report-modal');
+    const modalTitle       = document.getElementById('modal-title');
+    const modalGrid        = document.getElementById('modal-grid');
+    const modalClose       = document.getElementById('modal-close');
+
+    const reportsFab   = document.getElementById('reports-fab');
+    const reportsPanel = document.getElementById('reports-panel');
+    const panelClose   = document.getElementById('panel-close');
+
+    let allItems = []; // holds the last loaded items so modals can reuse them
+
     const API_URL = 'https://mits-lost-found.onrender.com/api/items';
 
-    const getSmartThumbnail = (url) => {
-        if (!url || !url.includes('/upload/')) return url;
-        return url.replace(
-            '/upload/',
-            '/upload/w_400,h_220,c_fill,e_blur:2000/w_400,h_220,c_fit,fl_layer_apply,g_center/'
-        );
-    };
     // ── 1. Scroll Reveal ───────────────────────────────────────
     const revealEls = document.querySelectorAll('.reveal');
     const revealObserver = new IntersectionObserver((entries) => {
@@ -54,6 +62,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const response = await fetch(API_URL);
             const data = await response.json();
 
+            allItems = data.items; // store for My Reports modals
             itemsGrid.innerHTML = '';
 
             if (data.items.length === 0) {
@@ -94,6 +103,70 @@ document.addEventListener('DOMContentLoaded', () => {
                 </p>`;
         }
     };
+
+    // ── 3.5 Profile Dropdown & My Reports Modal ────────────────
+    profileBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        profileDropdown.classList.toggle('hidden');
+    });
+
+    document.addEventListener('click', (e) => {
+        if (!profileDropdown.contains(e.target) && e.target !== profileBtn) {
+            profileDropdown.classList.add('hidden');
+        }
+    });
+
+    const renderModalItems = (type) => {
+        // NOTE: currently shows all items of this type. Once login is wired in,
+        // filter allItems here by the logged-in user's email/id before rendering.
+        const filtered = allItems.filter(i => i.itemType === type);
+        modalTitle.textContent = type === 'lost' ? '🔴 My Lost Reports' : '🟢 My Found Reports';
+
+        modalGrid.innerHTML = filtered.length === 0
+            ? `<p style="color:var(--ink-muted);grid-column:1/-1;padding:20px 0;">No ${type} reports yet.</p>`
+            : filtered.map(item => `
+                <div class="item-card ${item.itemType}">
+                    <div class="item-image-wrap" style="background-image:url('${item.imageUrl}')">
+                        <img src="${item.imageUrl}" class="item-image" onerror="this.src='https://placehold.co/400x200?text=MITS+Item'">
+                    </div>
+                    <h4>${item.itemName}</h4>
+                    <p>📍 ${item.location || 'Location not specified'}</p>
+                    <p class="card-desc">${item.description || 'No description provided.'}</p>
+                </div>
+            `).join('');
+
+        reportModal.classList.remove('hidden');
+    };
+
+    btnMyLost.addEventListener('click', () => renderModalItems('lost'));
+    btnMyFound.addEventListener('click', () => renderModalItems('found'));
+    modalClose.addEventListener('click', () => reportModal.classList.add('hidden'));
+    reportModal.addEventListener('click', (e) => {
+        if (e.target === reportModal) reportModal.classList.add('hidden');
+    });
+
+    reportsFab.addEventListener('click', () => {
+        reportsPanel.classList.toggle('hidden');
+        reportsFab.classList.toggle('active');
+    });
+
+    panelClose.addEventListener('click', () => {
+        reportsPanel.classList.add('hidden');
+        reportsFab.classList.remove('active');
+    });
+
+    document.addEventListener('click', (e) => {
+        if (!reportsPanel.contains(e.target) && e.target !== reportsFab) {
+            reportsPanel.classList.add('hidden');
+            reportsFab.classList.remove('active');
+        }
+    });
+
+    document.getElementById('dropdown-my-reports').addEventListener('click', () => {
+        profileDropdown.classList.add('hidden');
+        reportsPanel.classList.remove('hidden');
+        reportsFab.classList.add('active');
+    });
 
     // ── 4. Camera Mode ─────────────────────────────────────────
     const startCamera = async () => {
@@ -160,41 +233,41 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // ── 5. Post New Item ───────────────────────────────────────
     itemForm.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const formData = new FormData();
-    formData.append('itemName',    document.getElementById('itemName').value);
-    formData.append('itemType',    document.getElementById('itemType').value);
-    formData.append('contactInfo', document.getElementById('contactInfo').value);
-    formData.append('location',    document.getElementById('itemLocation').value);
-    formData.append('description', document.getElementById('itemDescription').value);
+        e.preventDefault();
+        const formData = new FormData();
+        formData.append('itemName',    document.getElementById('itemName').value);
+        formData.append('itemType',    document.getElementById('itemType').value);
+        formData.append('contactInfo', document.getElementById('contactInfo').value);
+        formData.append('location',    document.getElementById('itemLocation').value);
+        formData.append('description', document.getElementById('itemDescription').value);
 
-    // Prefer the camera capture if one exists, otherwise fall back to file upload
-    if (capturedImageBlob) {
-        formData.append('itemImage', capturedImageBlob, 'capture.jpg');
-    } else if (itemImageInput.files[0]) {
-        formData.append('itemImage', itemImageInput.files[0]);
-    }
-
-    try {
-        const res = await fetch(API_URL, { method: 'POST', body: formData });
-        if (res.ok)  {
-            itemForm.reset();
-            imagePreview.classList.add('hidden');
-            uploadPlaceholder.classList.remove('hidden');
-            capturedImageBlob = null;
-            capturedPreview.style.display = 'none';
-            uploadModeBtn.click();
-            loadItems();
-        } else {
-            const errData = await res.json().catch(() => ({}));
-            console.error("Server rejected item:", errData);
-            alert("Server error: " + (errData.error || res.status));
+        // Prefer the camera capture if one exists, otherwise fall back to file upload
+        if (capturedImageBlob) {
+            formData.append('itemImage', capturedImageBlob, 'capture.jpg');
+        } else if (itemImageInput.files[0]) {
+            formData.append('itemImage', itemImageInput.files[0]);
         }
-    } catch (err) {
-        console.error("Post error:", err);
-        alert("Could not post item. Is the server running?");
-    }
-});
+
+        try {
+            const res = await fetch(API_URL, { method: 'POST', body: formData });
+            if (res.ok) {
+                itemForm.reset();
+                imagePreview.classList.add('hidden');
+                uploadPlaceholder.classList.remove('hidden');
+                capturedImageBlob = null;
+                capturedPreview.style.display = 'none';
+                uploadModeBtn.click();
+                loadItems();
+            } else {
+                const errData = await res.json().catch(() => ({}));
+                console.error("Server rejected item:", errData);
+                alert("Server error: " + (errData.error || res.status));
+            }
+        } catch (err) {
+            console.error("Post error:", err);
+            alert("Could not post item. Is the server running?");
+        }
+    });
 
     // ── 6. Image Preview ───────────────────────────────────────
     itemImageInput.addEventListener('change', function () {
@@ -212,7 +285,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // ── 7. Resolve Item Action ─────────────────────────────────
     itemsGrid.addEventListener('click', async (e) => {
         if (!e.target.classList.contains('resolve-btn')) return;
-        
+
         const id = e.target.dataset.id;
         if (confirm("Mark this item as found / returned?")) {
             try {
@@ -227,4 +300,3 @@ document.addEventListener('DOMContentLoaded', () => {
     // ── Init ───────────────────────────────────────────────────
     loadItems();
 });
-
