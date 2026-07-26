@@ -424,7 +424,7 @@ document.addEventListener('DOMContentLoaded', () => {
     authModal.addEventListener('click', (e) => {
         if (e.target === authModal) authModal.classList.add('hidden');
     });
-    authBox.addEventListener('mouseleave', () => authModal.classList.add('hidden'));
+    // authBox.addEventListener('mouseleave', () => authModal.classList.add('hidden'));
 
     tabLogin.addEventListener('click', () => {
         tabLogin.classList.add('active');
@@ -524,8 +524,13 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // FORGOT PASSWORD step 1: request OTP
+    const forgotSubmitBtn = forgotRequestForm.querySelector('.auth-submit');
+
     forgotRequestForm.addEventListener('submit', async (e) => {
         e.preventDefault();
+        forgotSubmitBtn.disabled = true;
+        forgotSubmitBtn.textContent = 'Sending...';
+
         try {
             const res = await fetch(`${AUTH_API}/forgot-password`, {
                 method: 'POST',
@@ -533,10 +538,19 @@ document.addEventListener('DOMContentLoaded', () => {
                 body: JSON.stringify({ email: document.getElementById('forgot-email').value }),
             });
             const data = await res.json();
+
+            if (!res.ok) {
+                showAuthError(data.error || 'Could not send reset code. Please try again.');
+                return;
+            }
+
             document.getElementById('forgot-otp').dataset.email = document.getElementById('forgot-email').value;
             showAuthView(forgotResetForm);
         } catch (err) {
-            showAuthError('Could not connect to server.');
+            showAuthError('Could not connect to server. It may still be waking up — wait a few seconds and try again.');
+        } finally {
+            forgotSubmitBtn.disabled = false;
+            forgotSubmitBtn.textContent = 'Send Reset Code';
         }
     });
 
