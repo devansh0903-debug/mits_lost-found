@@ -45,6 +45,23 @@ document.addEventListener('DOMContentLoaded', () => {
     const submitBtn     = document.getElementById('submit-btn');
     const submitBtnText = document.getElementById('submit-btn-text');
 
+    const authModal   = document.getElementById('auth-modal');
+    const authBox     = document.getElementById('auth-box');
+    const authClose   = document.getElementById('auth-close');
+    const authError   = document.getElementById('auth-error');
+    const btnLogin    = document.getElementById('btn-login');
+    const btnLogout   = document.getElementById('btn-logout');
+    const profileStatus = document.querySelector('.profile-status');
+
+    const tabLogin    = document.getElementById('tab-login');
+    const tabRegister = document.getElementById('tab-register');
+    const loginForm   = document.getElementById('login-form');
+    const registerForm = document.getElementById('register-form');
+    const forgotRequestForm = document.getElementById('forgot-request-form');
+    const forgotResetForm   = document.getElementById('forgot-reset-form');
+
+    const AUTH_API = 'https://mits-lost-found.onrender.com/auth';
+
     let allItems = [];
     let isSubmitting = false; // prevents duplicate-post spam from repeated taps
 
@@ -377,6 +394,201 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
     });
+
+
+//~ ── AUTH SYSTEM ──────────────────────────────────────────────
+    const showAuthView = (viewToShow) => {
+        [loginForm, registerForm, forgotRequestForm, forgotResetForm].forEach(f => f.classList.add('hidden'));
+        viewToShow.classList.remove('hidden');
+        authError.classList.add('hidden');
+    };
+
+    const showAuthError = (msg) => {
+        authError.textContent = msg;
+        authError.classList.remove('hidden');
+    };
+
+    const openAuthModal = () => {
+        authModal.classList.remove('hidden');
+        tabLogin.classList.add('active');
+        tabRegister.classList.remove('active');
+        showAuthView(loginForm);
+    };
+
+    btnLogin.addEventListener('click', () => {
+        profileDropdown.classList.add('hidden');
+        openAuthModal();
+    });
+
+    authClose.addEventListener('click', () => authModal.classList.add('hidden'));
+    authModal.addEventListener('click', (e) => {
+        if (e.target === authModal) authModal.classList.add('hidden');
+    });
+    authBox.addEventListener('mouseleave', () => authModal.classList.add('hidden'));
+
+    tabLogin.addEventListener('click', () => {
+        tabLogin.classList.add('active');
+        tabRegister.classList.remove('active');
+        showAuthView(loginForm);
+    });
+
+    tabRegister.addEventListener('click', () => {
+        tabRegister.classList.add('active');
+        tabLogin.classList.remove('active');
+        showAuthView(registerForm);
+    });
+
+    document.getElementById('show-forgot').addEventListener('click', () => showAuthView(forgotRequestForm));
+    document.getElementById('back-to-login-1').addEventListener('click', () => showAuthView(loginForm));
+    document.getElementById('back-to-login-2').addEventListener('click', () => showAuthView(loginForm));
+
+    // show/hide password toggles
+    document.querySelectorAll('.toggle-password').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const input = document.getElementById(btn.dataset.target);
+            input.type = input.type === 'password' ? 'text' : 'password';
+            btn.textContent = input.type === 'password' ? '👁️' : '🙈';
+        });
+    });
+
+    const saveSession = (token, user) => {
+        localStorage.setItem('authToken', token);
+        localStorage.setItem('authUser', JSON.stringify(user));
+        applySessionUI();
+    };
+
+    const applySessionUI = () => {
+        const user = JSON.parse(localStorage.getItem('authUser') || 'null');
+        if (user) {
+            profileStatus.textContent = user.name;
+            btnLogin.classList.add('hidden');
+            btnLogout.classList.remove('hidden');
+        } else {
+            profileStatus.textContent = 'Guest';
+            btnLogin.classList.remove('hidden');
+            btnLogout.classList.add('hidden');
+        }
+    };
+    applySessionUI();
+
+    btnLogout.addEventListener('click', () => {
+        localStorage.removeItem('authToken');
+        localStorage.removeItem('authUser');
+        applySessionUI();
+        profileDropdown.classList.add('hidden');
+    });
+
+    // LOGIN submit
+    loginForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        try {
+            const res = await fetch(`${AUTH_API}/login`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    email: document.getElementById('login-email').value,
+                    password: document.getElementById('login-password').value,
+                }),
+            });
+            const data = await res.json();
+            if (!res.ok) return showAuthError(data.error || 'Login failed.');
+            saveSession(data.token, data.user);
+            authModal.classList.add('hidden');
+            loginForm.reset();
+        } catch (err) {
+            showAuthError('Could not connect to server. It may still be waking up — try again in a few seconds.');
+        }
+    });
+
+    // REGISTER submit
+    registerForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        try {
+            const res = await fetch(`${AUTH_API}/register`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    name: document.getElementById('register-name').value,
+                    email: document.getElementById('register-email').value,
+                    password: document.getElementById('register-password').value,
+                }),
+            });
+            const data = await res.json();
+            if (!res.ok) return showAuthError(data.error || 'Registration failed.');
+            saveSession(data.token, data.user);
+            authModal.classList.add('hidden');
+            registerForm.reset();
+        } catch (err) {
+            showAuthError('Could not connect to server. It may still be waking up — try again in a few seconds.');
+        }
+    });
+
+    // FORGOT PASSWORD step 1: request OTP
+    forgotRequestForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        try {
+            const res = await fetch(`${AUTH_API}/forgot-password`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email: document.getElementById('forgot-email').value }),
+            });
+            const data = await res.json();
+            document.getElementById('forgot-otp').dataset.email = document.getElementById('forgot-email').value;
+            showAuthView(forgotResetForm);
+        } catch (err) {
+            showAuthError('Could not connect to server.');
+        }
+    });
+
+    // FORGOT PASSWORD step 2: verify OTP + set new password
+    forgotResetForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        try {
+            const res = await fetch(`${AUTH_API}/reset-password`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    email: document.getElementById('forgot-otp').dataset.email,
+                    otp: document.getElementById('forgot-otp').value,
+                    newPassword: document.getElementById('forgot-new-password').value,
+                }),
+            });
+            const data = await res.json();
+            if (!res.ok) return showAuthError(data.error || 'Reset failed.');
+            showAuthView(loginForm);
+            forgotResetForm.reset();
+        } catch (err) {
+            showAuthError('Could not connect to server.');
+        }
+    });
+
+    // GOOGLE LOGIN
+    window.handleGoogleLogin = async (response) => {
+        try {
+            const res = await fetch(`${AUTH_API}/google`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ token: response.credential }),
+            });
+            const data = await res.json();
+            if (!res.ok) return showAuthError(data.error || 'Google sign-in failed.');
+            saveSession(data.token, data.user);
+            authModal.classList.add('hidden');
+        } catch (err) {
+            showAuthError('Could not connect to server.');
+        }
+    };
+
+    if (window.google) {
+        google.accounts.id.initialize({
+            client_id: 'YOUR_GOOGLE_CLIENT_ID_HERE',
+            callback: window.handleGoogleLogin,
+        });
+        google.accounts.id.renderButton(
+            document.getElementById('google-signin-btn'),
+            { theme: 'outline', size: 'large', width: 300 }
+        );
+    }
 
     // Init
     loadItems();

@@ -11,11 +11,15 @@ const { CloudinaryStorage } = require('multer-storage-cloudinary');
 require('dotenv').config();
 
 const Item = require('./models/Item');
+const authRoutes = require('./routes/auth');
 const app = express();
+
 
 // --- 1. MIDDLEWARE ---
 app.use(cors()); 
 app.use(express.json());
+app.use(express.static('public'));
+app.use('/auth', authRoutes);
 
 // --- 2. CLOUDINARY CONFIG ---
 cloudinary.config({
