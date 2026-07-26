@@ -13,7 +13,7 @@ require('dotenv').config();
 const Item = require('./models/Item');
 const authRoutes = require('./routes/auth');
 const app = express();
-
+app.set('trust proxy', 1);
 
 // --- 1. MIDDLEWARE ---
 app.use(cors()); 
