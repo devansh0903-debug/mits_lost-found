@@ -405,7 +405,7 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     // Replace with your actual Google Client ID (same one used in your backend .env)
-    const GOOGLE_CLIENT_ID = 'YOUR_GOOGLE_CLIENT_ID_HERE';
+    GOOGLE_CLIENT_ID=798912287316-aoir8ucttobi2mhe0tpv1ah5t9fft0dj.apps.googleusercontent.com
 
     if (window.google) {
         google.accounts.id.initialize({
