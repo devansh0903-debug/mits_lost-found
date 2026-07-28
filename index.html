@@ -156,20 +156,6 @@
     </div>
   </div>
 
-  <!-- FLOATING ACTION BUTTON & PANEL -->
-  <div id="reports-fab" class="reports-fab">📋</div>
-
-  <div id="reports-panel" class="reports-panel hidden">
-    <button id="panel-close" class="modal-close">✕</button>
-    <p class="panel-sub">View everything reported so far</p>
-    <button id="btn-my-lost" class="report-type-btn lost-btn">
-      🔴 Lost Reports
-    </button>
-    <button id="btn-my-found" class="report-type-btn found-btn">
-      🟢 Found Reports
-    </button>
-  </div>
-
   <!-- AUTH MODAL -->
   <div id="auth-modal" class="modal-overlay hidden">
     <div class="modal-box auth-box" id="auth-box">
@@ -190,7 +176,6 @@
           <button type="button" class="toggle-password" data-target="login-password">👁️</button>
         </div>
         <button type="submit" class="submit-btn auth-submit">Login</button>
-        <button type="button" id="show-forgot" class="link-btn">Forgot password?</button>
       </form>
 
       <!-- REGISTER VIEW -->
@@ -204,26 +189,6 @@
         <button type="submit" class="submit-btn auth-submit">Create Account</button>
       </form>
 
-      <!-- FORGOT PASSWORD: step 1 (request OTP) -->
-      <form id="forgot-request-form" class="auth-form hidden">
-        <p class="auth-hint">Enter your email and we'll send you a reset code.</p>
-        <input type="email" id="forgot-email" placeholder="Email" required>
-        <button type="submit" class="submit-btn auth-submit">Send Reset Code</button>
-        <button type="button" id="back-to-login-1" class="link-btn">Back to login</button>
-      </form>
-
-      <!-- FORGOT PASSWORD: step 2 (verify OTP + new password) -->
-      <form id="forgot-reset-form" class="auth-form hidden">
-        <p class="auth-hint">Check your email for a 6-digit code.</p>
-        <input type="text" id="forgot-otp" placeholder="6-digit code" maxlength="6" required>
-        <div class="password-field">
-          <input type="password" id="forgot-new-password" placeholder="New password (min 8 characters)" required>
-          <button type="button" class="toggle-password" data-target="forgot-new-password">👁️</button>
-        </div>
-        <button type="submit" class="submit-btn auth-submit">Reset Password</button>
-        <button type="button" id="back-to-login-2" class="link-btn">Back to login</button>
-      </form>
-
       <div class="auth-divider"><span>or</span></div>
 
       <div id="google-signin-btn" class="google-btn-wrap"></div>
@@ -231,6 +196,23 @@
   </div>
 
   <script src="https://accounts.google.com/gsi/client" async defer></script>
+
+  <!-- FLOATING ACTION BUTTON & PANEL -->
+  <div id="reports-fab" class="reports-fab">📋</div>
+
+  <div id="reports-panel" class="reports-panel hidden">
+    <button id="panel-close" class="modal-close">✕</button>
+    <p class="panel-sub">View everything reported so far</p>
+    <button id="btn-my-lost" class="report-type-btn lost-btn">
+      🔴 Lost Reports
+    </button>
+    <button id="btn-my-found" class="report-type-btn found-btn">
+      🟢 Found Reports
+    </button>
+    <button id="btn-my-activity" class="report-type-btn activity-btn">
+      🧾 My Activity
+    </button>
+  </div>
 
   <script src="script.js"></script>
 </body>

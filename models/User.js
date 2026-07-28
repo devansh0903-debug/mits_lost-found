@@ -14,10 +14,6 @@ const userSchema = new mongoose.Schema({
     failedLoginAttempts: { type: Number, default: 0 },
     lockUntil: { type: Date },
 
-    // ── Forgot-password OTP ─────────────────────────────────
-    resetOTP: { type: String, select: false },
-    resetOTPExpires: { type: Date, select: false },
-
 }, { timestamps: true });
 
 // Virtual helper: is this account currently locked out?

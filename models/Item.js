@@ -8,6 +8,11 @@ const itemSchema = new mongoose.Schema({
     contactInfo: { type: String, required: true },
     imageUrl: { type: String, default: 'https://placehold.co/400x200?text=MITS+Item' },
     status: { type: String, default: 'active' }, // 'active' or 'resolved'
+
+    // Only set when the poster was logged in at the time of posting.
+    // Guests can still post — this just stays null for them.
+    postedByEmail: { type: String, default: null },
+
     createdAt: { type: Date, default: Date.now }
 });
 

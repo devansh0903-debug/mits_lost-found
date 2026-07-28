@@ -12,13 +12,14 @@ require('dotenv').config();
 
 const Item = require('./models/Item');
 const authRoutes = require('./routes/auth');
+const optionalAuth = require('./middleware/optionalAuth');
+
 const app = express();
 app.set('trust proxy', 1);
 
 // --- 1. MIDDLEWARE ---
-app.use(cors()); 
+app.use(cors());
 app.use(express.json());
-app.use(express.static('public'));
 app.use('/auth', authRoutes);
 
 // --- 2. CLOUDINARY CONFIG ---
@@ -49,17 +50,18 @@ mongoose.connect(process.env.MONGO_URI)
 // Health Check
 app.get('/', (req, res) => res.send('🚀 MITS Server is Flying!'));
 
-// POST: Upload item
-app.post('/api/items', upload.single('itemImage'), async (req, res) => {
+// POST: Upload item — optionalAuth tags it with the poster's email if logged in
+app.post('/api/items', optionalAuth, upload.single('itemImage'), async (req, res) => {
     try {
         const newItem = new Item({
             ...req.body,
-            imageUrl: req.file ? req.file.path : "https://placehold.co/400x200?text=MITS+Item"
+            imageUrl: req.file ? req.file.path : "https://placehold.co/400x200?text=MITS+Item",
+            postedByEmail: req.userEmail || null
         });
         await newItem.save();
         res.status(201).json(newItem);
-    } catch (err) { 
-        res.status(400).json({ error: err.message }); 
+    } catch (err) {
+        res.status(400).json({ error: err.message });
     }
 });
 
@@ -69,8 +71,8 @@ app.get('/api/items', async (req, res) => {
         const activeItems = await Item.find({ status: 'active' }).sort({ createdAt: -1 });
         const resolvedCount = await Item.countDocuments({ status: 'resolved' });
         res.json({ items: activeItems, resolvedCount });
-    } catch (err) { 
-        res.status(500).json({ error: err.message }); 
+    } catch (err) {
+        res.status(500).json({ error: err.message });
     }
 });
 
@@ -79,8 +81,8 @@ app.put('/api/items/resolve/:id', async (req, res) => {
     try {
         await Item.findByIdAndUpdate(req.params.id, { status: 'resolved' });
         res.json({ message: "Item marked as resolved!" });
-    } catch (err) { 
-        res.status(500).json({ error: err.message }); 
+    } catch (err) {
+        res.status(500).json({ error: err.message });
     }
 });
 
