@@ -404,8 +404,9 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
-    // Replace with your actual Google Client ID (same one used in your backend .env)
-    const GOOGLE_CLIENT_ID = '798912287316-aoir8ucttobi2mhe0tpv1ah5t9fft0dj.apps.googleusercontent.com';
+    // This must match the OAuth client configured in Google Cloud Console.
+    // You can override it on the page before loading this script if needed.
+    const GOOGLE_CLIENT_ID = window.GOOGLE_CLIENT_ID || '798912287316-aoir8ucttobi2mhe0tpv1ah5t9fft0dj.apps.googleusercontent.com';
 
     if (window.google) {
         google.accounts.id.initialize({
