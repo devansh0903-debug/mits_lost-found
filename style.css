@@ -214,9 +214,13 @@ body {
   font-size: 0.9rem;
   transition: all 0.2s ease;
   white-space: nowrap;
+  border-bottom: 2px solid transparent;
 }
 
-.nav-links a:hover { color: var(--text-main); }
+.nav-links a:hover, .nav-links a.active {
+  color: var(--text-main);
+  border-bottom: 2px solid var(--cyan-accent);
+}
 
 .navbar-right {
   display: flex;
@@ -914,7 +918,7 @@ body {
 
   .nav-links.open { display: flex; }
 
-  .nav-links a { padding: 12px 10px; border-bottom: 1px solid var(--panel-border); width: 100%; }
+  .nav-links a { border-bottom: 1px solid var(--panel-border); width: 100%; }
   .nav-links li:last-child a { border-bottom: none; }
 
   .nav-toggle { display: flex; }
